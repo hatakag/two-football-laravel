@@ -8,4 +8,7 @@ use App\Http\Controllers\Controller;
 class TransactionController extends Controller
 {
     //
+    public function deposit(Request $request, $user_id) {
+
+    }
 }

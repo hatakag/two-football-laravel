@@ -16,3 +16,19 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//Routes only access with authenticated users
+Route::middleware('auth:api')->group(function () {
+
+    //Admin Only
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/users', 'User\UserController@getUsers');
+    });
+
+    //User Only
+    Route::middleware(['user'])->group(function () {
+        Route::put('/users/{user_id}', 'User\UserController@updateUser');
+        Route::post('/users/{user_id}/balance', 'Transaction\TransactionController@deposit');
+    });
+
+});
