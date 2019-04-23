@@ -15,8 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//Auth
+/*
+//Auth routes are created by `php artisan make:auth`
 Auth::routes();
+*/
 
 //Common route
 Route::get('/home', 'HomeController@index')->name('home');
