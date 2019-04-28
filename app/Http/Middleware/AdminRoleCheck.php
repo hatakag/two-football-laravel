@@ -18,7 +18,11 @@ class AdminRoleCheck
         if(auth()->check() && auth()->user()->role == config('constants.role.admin')){
             return $next($request);
         }else{
-            return redirect()->back();
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid role',
+                'code' => 101,
+            ], 403);
         }
     }
 }

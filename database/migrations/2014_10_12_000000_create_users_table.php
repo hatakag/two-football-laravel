@@ -19,12 +19,12 @@ class CreateUsersTable extends Migration
                 $table->string('username', 100)->unique();
                 $table->string('password', 600);
                 $table->string('role', 10);
-                $table->integer('balance');
+                $table->float('balance');
                 $table->string('name', 60);
                 $table->string('picture', 300)->nullable();
                 $table->string('phone', 11)->unique();
                 $table->string('email', 100)->unique();
-                $table->rememberToken();
+                //$table->rememberToken();
             });
         }
     }

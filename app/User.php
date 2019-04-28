@@ -20,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTIdentifier()
     {
-        return $this->getKey();
+        return $this->getKey(); // define JWT subject key 'sub', getKey() return this model primary key
     }
 
     /**
@@ -30,7 +30,10 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->role,
+            'username' => $this->username, // define custom claims, use in payload
+        ];
     }
 
     /**
@@ -48,7 +51,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', //'remember_token',
     ];
 
     /**
