@@ -64,6 +64,13 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
     */
+
+    protected $attributes = [
+        'picture' => null,
+        'balance' => 0,
+        'role' => 'ROLE_USER',
+    ];
+
     protected $table = 'user';
     public $primaryKey = 'user_id';
     public $timestamps = false;

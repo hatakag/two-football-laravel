@@ -10,4 +10,5 @@ class Card extends Model
     protected $table = 'card';
     public $primaryKey = 'code';
     public $timestamps = false;
+    public $incrementing = false;
 }
