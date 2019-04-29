@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CustomAuth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class LoginController extends Controller
@@ -22,16 +23,12 @@ class LoginController extends Controller
                 'status' => false,
                 'message' => $validator->messages(),
                 'code' => 101,
-            ]);
+            ], Response::HTTP_BAD_REQUEST);
         }
         try {
             // Attempt to verify the credentials and create a token for the user
             if (! $token = auth()->attempt($credentials)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'We can`t find an account with this credentials.',
-                    'code' => 101,
-                ], 401);
+                return response()->json(config('constants.error_response.FAIL_LOGIN'), Response::HTTP_BAD_REQUEST);
             }
         } catch (JWTException $e) {
             // Something went wrong with JWT Auth.
@@ -39,13 +36,13 @@ class LoginController extends Controller
                 'status' => false,
                 'message' => $e->getMessage(),
                 'code' => 101,
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         // All good so return the token
         return response()->json([
             'status' => true,
             'access_token' => $token,
             'user' => auth()->user(),
-        ]);
+        ], Response::HTTP_OK);
     }
 }

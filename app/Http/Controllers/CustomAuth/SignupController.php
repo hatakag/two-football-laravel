@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class SignupController extends Controller
 {
@@ -24,7 +25,7 @@ class SignupController extends Controller
                 'status' => false,
                 'message' => $validator->messages(),
                 'code' => 101,
-            ]);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -41,12 +42,12 @@ class SignupController extends Controller
                 'status' => false,
                 'message' => $e->getMessage(),
                 'code' => 101,
-            ]);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return response()->json([
             'status' => true,
             'user' => $user,
-        ], 200);
+        ], Response::HTTP_OK);
     }
 }

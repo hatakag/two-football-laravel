@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminRoleCheck
 {
@@ -22,7 +23,7 @@ class AdminRoleCheck
                 'status' => false,
                 'message' => 'Invalid role',
                 'code' => 101,
-            ], 403);
+            ], Response::HTTP_FORBIDDEN);
         }
     }
 }
