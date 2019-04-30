@@ -22,7 +22,7 @@ class LoginController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $validator->messages(),
-                'code' => 101,
+                'code' => 100,
             ], Response::HTTP_BAD_REQUEST);
         }
         try {
@@ -35,7 +35,7 @@ class LoginController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-                'code' => 101,
+                'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         // All good so return the token

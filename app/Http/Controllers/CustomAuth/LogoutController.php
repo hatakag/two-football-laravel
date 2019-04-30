@@ -11,23 +11,18 @@ class LogoutController extends Controller
 {
     //
     public function logout(Request $request) {
-        $this->validate($request, [
-            'token' => 'required'
-        ]);
-
         try {
-            auth()->invalidate();
-
+            auth()->logout();
             return response()->json([
                 'success' => true,
                 'message' => 'User logged out successfully',
-                'code' => 123,
+                'code' => 100,
             ], Response::HTTP_OK);
-        } catch (JWTException $exception) {
+        } catch (\Exception $e){
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, the user cannot be logged out',
-                'code' => 123,
+                'message' => $e->getMessage(),
+                'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

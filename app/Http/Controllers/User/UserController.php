@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 use test\Mockery\ReturnTypeObjectTypeHint;
 
@@ -25,7 +26,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-                'code' => 101,
+                'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -35,17 +36,17 @@ class UserController extends Controller
             $user = User::findOrFail($user_id);
 
             $validator = Validator::make($request->all(), [
-                'username' => 'required|string|max:100|unique:user,'.$user_id,
-                'name' => 'required|string|max:60',
-                'picture' => '',
-                'phone' => 'required|string|max:11|unique:user,'.$user_id,
-                'email' => 'required|string|email|max:100|unique:user,'.$user_id,
+                'username' => ['required','string','max:100',Rule::unique('user')->ignore($user)],
+                'name' => ['required','string','max:60'],
+                'picture' => [],
+                'phone' => ['required','string','max:11',Rule::unique('user')->ignore($user)],
+                'email' => ['required','string','email','max:100',Rule::unique('user')->ignore($user)],
             ]);
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,
                     'message' => $validator->messages(),
-                    'code' => 101,
+                    'code' => 100,
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -66,7 +67,25 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-                'code' => 101,
+                'code' => 100,
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getMillionaires(Request $request) {
+        try {
+            $users = User::orderBy('balance', 'desc')
+                ->take(10)
+                ->get();
+            return response()->json([
+                'status' => true,
+                'users' => $users->toArray()
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

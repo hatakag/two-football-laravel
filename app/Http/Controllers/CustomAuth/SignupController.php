@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class SignupController extends Controller
@@ -14,17 +15,17 @@ class SignupController extends Controller
     public function signup(Request $request) {
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:100|unique:user',
-            'password'=> 'required|string|max:600',
-            'name' => 'required|string|max:60',
-            'phone' => 'required|string|max:11|unique:user',
-            'email' => 'required|string|email|max:100|unique:user',
+            'username' => ['required','string','max:100',Rule::unique('user')],
+            'password'=> ['required','string','max:600'],
+            'name' => ['required','string','max:60'],
+            'phone' => ['required','string','max:11',Rule::unique('user')],
+            'email' => ['required','string','email','max:100',Rule::unique('user')],
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => $validator->messages(),
-                'code' => 101,
+                'code' => 100,
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -41,7 +42,7 @@ class SignupController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-                'code' => 101,
+                'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

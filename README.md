@@ -8,7 +8,7 @@ Using Laravel, MySQL, Pusher...
 ### How to run
 - Firstly, clone the project
 - Change to project folder, run this command `composer install` to install all dependencies
-- ####For development
+- **For development:**
     - Create new MySQL user if not have, create new database called `two-football`
     - Configure the `.env` file, in the `DB` part to match with your user and database
     - Run the following command to create all the tables `php artisan migarate` (drop tables `php artisan migrate:reset`)
