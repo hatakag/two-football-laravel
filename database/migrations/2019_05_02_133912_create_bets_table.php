@@ -13,10 +13,18 @@ class CreateBetsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bet', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('bet')) {
+            Schema::create('bet', function (Blueprint $table) {
+                $table->integer('user_id');
+                $table->integer('match_id');
+                $table->integer('bet_type');
+                $table->integer('bet_amount')->nullable();
+                $table->string('bet_content', 10)->nullable();
+                $table->timestamp('bet_time');
+                $table->string('bet_status', 12)->nullable();
+                $table->integer('bet_gain')->nullable();
+            });
+        }
     }
 
     /**
