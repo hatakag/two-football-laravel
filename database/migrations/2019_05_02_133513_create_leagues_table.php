@@ -13,10 +13,13 @@ class CreateLeaguesTable extends Migration
      */
     public function up()
     {
-        Schema::create('league', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('league')) {
+            Schema::create('league', function (Blueprint $table) {
+                $table->integer('league_id')->primary();
+                $table->string('league_name', 60);
+                $table->string('country', 60)->nullable();
+            });
+        }
     }
 
     /**
