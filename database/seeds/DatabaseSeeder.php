@@ -24,5 +24,11 @@ class DatabaseSeeder extends Seeder
             'phone' => '0123456789',
             'email' => 'thanh'.'@gmail.com',
         ]);
+
+        DB::table('card')->insert([
+            'code' => 123,
+            'value' => 100000,
+            'active' => true,
+        ]);
     }
 }
