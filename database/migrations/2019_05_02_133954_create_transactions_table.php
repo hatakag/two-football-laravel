@@ -17,9 +17,11 @@ class CreateTransactionsTable extends Migration
             Schema::create('transaction', function (Blueprint $table) {
                 $table->string('type', 10)->nullable();
                 $table->timestamp('time');
-                $table->integer('user_id');
+                $table->unsignedInteger('user_id');
                 $table->integer('amount')->nullable();
                 $table->string('description', 60)->nullable();
+                $table->primary(['time', 'user_id']);
+                $table->foreign('user_id')->references('user_id')->on('user');
             });
         }
     }

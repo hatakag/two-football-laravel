@@ -15,14 +15,17 @@ class CreateBetsTable extends Migration
     {
         if (!Schema::hasTable('bet')) {
             Schema::create('bet', function (Blueprint $table) {
-                $table->integer('user_id');
+                $table->unsignedInteger('user_id');
                 $table->integer('match_id');
                 $table->integer('bet_type');
-                $table->integer('bet_amount')->nullable();
-                $table->string('bet_content', 10)->nullable();
+                $table->integer('bet_amount');
+                $table->string('bet_content', 10);
                 $table->timestamp('bet_time');
                 $table->string('bet_status', 12)->nullable();
                 $table->integer('bet_gain')->nullable();
+                $table->primary(['user_id', 'match_id', 'bet_type']);
+                $table->foreign('user_id')->references('user_id')->on('user');
+                $table->foreign('match_id')->references('match_id')->on('fixture');
             });
         }
     }

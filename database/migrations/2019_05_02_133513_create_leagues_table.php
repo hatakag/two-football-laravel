@@ -17,7 +17,7 @@ class CreateLeaguesTable extends Migration
             Schema::create('league', function (Blueprint $table) {
                 $table->integer('league_id')->primary();
                 $table->string('league_name', 60);
-                $table->string('country', 60)->nullable();
+                $table->string('country', 60);
             });
         }
     }

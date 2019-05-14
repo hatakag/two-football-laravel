@@ -27,6 +27,7 @@ class CreateFixturesTable extends Migration
                 $table->integer('match_awayteam_score')->nullable();
                 $table->integer('yellow_card')->nullable();
                 $table->string('match_status', 6)->nullable();
+                $table->foreign('league_id')->references('league_id')->on('league');
             });
         }
     }

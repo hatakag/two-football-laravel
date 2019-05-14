@@ -39,6 +39,11 @@ Route::middleware('jwt.auth')->group(function() {
             Route::put('/users/{user_id}', 'User\UserController@updateUser');
             Route::post('/users/{user_id}/balance', 'Transaction\TransactionController@deposit');
             Route::get('/users/millionaires', 'User\UserController@getMillionaires');
+            Route::post('/matches/{match_id}/comments', 'Comment\CommentController@postComment');
+            Route::get('/matches/{match_id}/comments', 'Comment\CommentController@getComments');
+            Route::post('/matches/{match_id}/bets', 'Bet\BetController@betMatch');
+            Route::get('/matches/{match_id}/bets', 'Bet\BetController@getUserBetsForMatch');
+            Route::get('/users/{user_id}/bets', 'Bet\BetController@getBets');
         });
     });
 });
