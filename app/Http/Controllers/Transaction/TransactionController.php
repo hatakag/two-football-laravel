@@ -16,6 +16,9 @@ class TransactionController extends Controller
     public function deposit(Request $request, $user_id) {
         try {
             $user = User::findOrFail($user_id);
+            if ($user_id != auth()->user()->user_id)
+                return response()->json(config('constants.error_response.INVALID_TOKEN'), Response::HTTP_FORBIDDEN);
+
             $validator = Validator::make($request->all(), [
                 'code' => ['required', 'string'],
                 'password' => ['required', 'string', 'max:600'],

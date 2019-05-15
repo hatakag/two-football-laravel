@@ -34,6 +34,8 @@ class UserController extends Controller
     public function updateUser(Request $request, $user_id) {
         try {
             $user = User::findOrFail($user_id);
+            if ($user_id != auth()->user()->user_id)
+                return response()->json(config('constants.error_response.INVALID_TOKEN'), Response::HTTP_FORBIDDEN);
 
             $validator = Validator::make($request->all(), [
                 'username' => ['required','string','max:100',Rule::unique('user')->ignore($user)],
