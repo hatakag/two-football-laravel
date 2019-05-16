@@ -2,9 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Bet;
+use App\Models\Fixture;
+use App\Models\League;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Fetch3rdAPI extends Command
 {
@@ -40,7 +44,104 @@ class Fetch3rdAPI extends Command
     public function handle()
     {
         print("Fetch 3rd API data\n");
-        $this->get3rdAPIData(128);//128//
+        //$this->get3rdAPIData(128);//128//63
+        $leagues = League::all();
+        foreach ($leagues as $league) {
+            $matchList = $this->get3rdAPIData($league->league_id);
+            if ($matchList == 0) {
+                print ("Cannot get 3rd API data\n");
+                continue;
+            }
+            foreach ($matchList as $match) {
+                $matchID = $match->match_id;
+                $leagueID = $match->league_id;
+                $hometeamHalftimeScore = 0;
+                $awayteamHalftimeScore = 0;
+                $hometeamScore = 0;
+                $awayteamScore = 0;
+                $yellowCard = 0;
+                if ($match->match_status != '') {
+                    $hometeamHalftimeScore = $match->match_hometeam_halftime_score;
+                    $awayteamHalftimeScore = $match->match_awayteam_halftime_score;
+
+                    if ($match->match_hometeam_score != '')
+                        $hometeamScore = $match->match_hometeam_score;
+
+                    if ($match->match_awayteam_score != '')
+                        $awayteamScore = $match->match_awayteam_score;
+
+                    $statistics = $match->statistics;
+                    $fullTime = false;
+                    foreach ($statistics as $statistic) {
+                        if ($statistic->type == 'yellow cards') {
+                            $yellowCard = $statistic->home + $statistic->away;
+                            $fullTime = true;
+                            break;
+                        }
+                    }
+                    if ($fullTime == false)
+                        $yellowCard = 0;
+                }
+                /*
+                print ($hometeamHalftimeScore." - ".$awayteamHalftimeScore);
+                print ("\n");
+                print ($hometeamScore." - ".$awayteamScore);
+                print ("\n");
+                print ($yellowCard);
+                print ("\n");
+                */
+                try {
+                    $matchRecord = Fixture::findOrFail($matchID);
+                    $matchStatusBefore = $matchRecord->match_status;
+                    //update match
+                    if ($match->match_status != '' and $matchStatusBefore != 'FT') {
+                        $matchRecord->match_hometeam_halftime_score = $hometeamHalftimeScore;
+                        $matchRecord->match_awayteam_halftime_score = $awayteamHalftimeScore;
+                        $matchRecord->match_hometeam_score = $hometeamScore;
+                        $matchRecord->match_awayteam_score = $awayteamScore;
+                        $matchRecord->yellow_card = $yellowCard;
+                        $matchRecord->match_status = $match->match_status;
+                        $matchRecord->save();
+                    }
+
+                    if ($match->match_status != 'FT' and $matchStatusBefore != 'FT') {
+                        //calculate bet
+                        $betList = Bet::where('match_id', $matchID)->first();
+                        foreach ($betList as $bet) {
+                            //halftime bet
+                            if ($bet->bet_type == 1) {
+
+                            }
+                            //fulltime bet
+                            if ($bet->bet_type == 2) {
+
+                            }
+                            //yellow card bet
+                            if ($bet->bet_type == 3) {
+
+                            }
+                            //pusher
+                            //
+                        }
+                    }
+
+                } catch (ModelNotFoundException $e) {
+                    //insert match
+                    $matchRecord = new Fixture();
+                    $matchRecord->match_date = $match->match_date;
+                    $matchRecord->match_time = $match->match_time;
+                    $matchRecord->match_hometeam_name = $match->match_hometeam_name;
+                    $matchRecord->match_awayteam_name = $match->match_awayteam_name;
+                    $matchRecord->match_hometeam_halftime_score = $hometeamHalftimeScore;
+                    $matchRecord->match_awayteam_halftime_score = $awayteamHalftimeScore;
+                    $matchRecord->match_hometeam_score = $hometeamScore;
+                    $matchRecord->match_awayteam_score = $awayteamScore;
+                    $matchRecord->yellow_card = $yellowCard;
+                    $matchRecord->match_status = $match->match_status;
+                    $matchRecord->save();
+                }
+            }
+        }
     }
 
     public function get3rdAPIData($league_id) {
@@ -48,7 +149,7 @@ class Fetch3rdAPI extends Command
         $ACTION = 'get_events';
         $API_KEY = '6b15223e25e9784070b71f3a43b0ae08870adb4b6a3e8453080d2b68c6d15bcb';
 
-        $fromDate = date('Y-m-d', strtotime("-3 days")); //string
+        $fromDate = date('Y-m-d', strtotime("-8 days")); //string
         $toDate = date('Y-m-d', strtotime("+8 days"));
         $param = [
             'action' => $ACTION,
@@ -62,11 +163,13 @@ class Fetch3rdAPI extends Command
         try {
             $response = $client->request('GET', 'https://apifootball.com/api/', ['query' => $param]);
             $result = $response->getBody()->getContents();
-            $matchList = json_decode($result, true);
+            $matchList = json_decode($result); //json string to array of object
             //print_r($matchList);
-            //print($matchList[0]['match_id']);
+            //print($matchList[0]->match_id);
+            if (isset($matchList->error))
+                return 0;
             return $matchList;
-        } catch (GuzzleException $e) {
+        } catch (\Exception $e) {
             print($e->getMessage());
             return 0;
         }

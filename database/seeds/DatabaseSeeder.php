@@ -30,5 +30,15 @@ class DatabaseSeeder extends Seeder
             'value' => 100000,
             'active' => true,
         ]);
+
+        DB::table('league')->insert([[
+            'league_id' => 128,
+            'league_name' => 'Ligue 2',
+            'country' => 'France',
+        ],[
+            'league_id' => 99999,
+            'league_name' => 'null',
+            'country' => 'null',
+        ]]);
     }
 }
