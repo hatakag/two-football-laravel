@@ -23,3 +23,6 @@ Auth::routes();
 //Common route
 Route::get('/home', 'HomeController@index')->name('home');
 */
+Route::get('/test_pusher', function () {
+    return view('pusher');
+});

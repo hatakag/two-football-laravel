@@ -6,6 +6,13 @@ return [
         'admin' => 'ROLE_ADMIN',
     ],
 
+    'pusher' => [
+        'BET_CHANNEL' => 'BET_RESULT_CHANNEL',
+        'BET_EVENT_PREFIX' => 'bet_',
+        'COMMENT_CHANNEL' => 'COMMENT_CHANNEL',
+        'COMMENT_EVENT_PREFIX' => 'comment_',
+    ],
+
     'error_response' => [
         'SIGNUP_EXISTING_USER_ERROR' => [
             'status' => false,

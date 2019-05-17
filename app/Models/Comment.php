@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 
-class Comment extends Model
+class Comment extends ModelMPK
 {
     //
     protected $fillable = [

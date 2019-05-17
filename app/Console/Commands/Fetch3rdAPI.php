@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Models\Bet;
 use App\Models\Fixture;
 use App\Models\League;
+use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Pusher\Pusher;
 
 class Fetch3rdAPI extends Command
 {
@@ -104,30 +106,81 @@ class Fetch3rdAPI extends Command
                         $matchRecord->save();
                     }
 
-                    if ($match->match_status != 'FT' and $matchStatusBefore != 'FT') {
+                    if ($match->match_status == 'FT' and $matchStatusBefore != 'FT') {
                         //calculate bet
-                        $betList = Bet::where('match_id', $matchID)->first();
+                        $betList = Bet::where('match_id', $matchID)->get();
                         foreach ($betList as $bet) {
+                            print($bet->bet_type);
                             //halftime bet
                             if ($bet->bet_type == 1) {
-
+                                $predictResult = explode("-" ,$bet->bet_content);
+                                if ((int)$predictResult[0] == $matchRecord->match_hometeam_halftime_score and (int)$predictResult[1] == $matchRecord->match_awayteam_halftime_score) {
+                                    $user = User::find($bet->user_id);
+                                    $betGain = $bet->bet_amount * 2;
+                                    $user->balance += $betGain;
+                                    $user->save();
+                                    $bet->end($betGain);
+                                } else {
+                                    $bet->end(0);
+                                }
                             }
                             //fulltime bet
                             if ($bet->bet_type == 2) {
-
+                                $predictResult = explode("-" ,$bet->bet_content);
+                                if ((int)$predictResult[0] == $matchRecord->match_hometeam_score and (int)$predictResult[1] == $matchRecord->match_awayteam_score) {
+                                    $user = User::find($bet->user_id);
+                                    $betGain = $bet->bet_amount * 3;
+                                    $user->balance += $betGain;
+                                    $user->save();
+                                    $bet->end($betGain);
+                                } else {
+                                    $bet->end(0);
+                                }
                             }
                             //yellow card bet
                             if ($bet->bet_type == 3) {
-
+                                if ((int)$bet->bet_content == $matchRecord->yellow_card) {
+                                    $user = User::find($bet->user_id);
+                                    $betGain = $bet->bet_amount * 2;
+                                    $user->balance += $betGain;
+                                    $user->save();
+                                    $bet->end($betGain);
+                                } else {
+                                    $bet->end(0);
+                                }
                             }
                             //pusher
-                            //
+                            $options = array(
+                                'cluster' => 'ap1',
+                                'useTLS' => true
+                            );
+
+                            $pusher = new Pusher(
+                                env('PUSHER_APP_KEY'),
+                                env('PUSHER_APP_SECRET'),
+                                env('PUSHER_APP_ID'),
+                                $options
+                            );
+
+                            $event = config("constants.pusher.BET_EVENT_PREFIX").(string)$matchID."_".(string)$bet->user_id;
+                            $data = [
+                                'match' => $matchRecord,
+                                'bet_type' => $bet->bet_type,
+                                'bet_amount' => $bet->bet_amount,
+                                'bet_content' => $bet->bet_content,
+                                'bet_time' => date("Y-m-dTh:m:s", strtotime($bet->bet_time)),
+                                'bet_status' => $bet->bet_status,
+                                'bet_gain' => $bet->bet_gain,
+                            ];
+                            $pusher->trigger(config("constants.pusher.BET_CHANNEL"), $event, $data);
                         }
                     }
 
                 } catch (ModelNotFoundException $e) {
                     //insert match
                     $matchRecord = new Fixture();
+                    $matchRecord->match_id = $matchID;
+                    $matchRecord->league_id = $leagueID;
                     $matchRecord->match_date = $match->match_date;
                     $matchRecord->match_time = $match->match_time;
                     $matchRecord->match_hometeam_name = $match->match_hometeam_name;
