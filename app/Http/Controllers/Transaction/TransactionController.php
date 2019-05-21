@@ -34,8 +34,11 @@ class TransactionController extends Controller
             if (bcrypt($request->get('password')) != $user->password) {
                 return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
             }
-
-            $card = Card::findOrFail($request->get('code'));
+            try {
+                $card = Card::findOrFail($request->get('code'));
+            } catch (ModelNotFoundException $e) {
+                return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
+            }
             if ($card->active == false) {
                 return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
             }

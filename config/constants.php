@@ -79,5 +79,48 @@ return [
             'message' => 'Payload consists an invalid card code / password.',
             'code' => 501,
         ],
+
+        'BAD_BET_REQUEST' => [
+            'status' => false,
+            'message' => 'Bet type >=> [ Bet amount > 0',
+            'code'=> 601,
+        ],
+
+        'MATCH_NOT_FOUND' => [
+            'status' => false,
+            'message' => 'Match not found',
+            'code' => 602,
+        ],
+
+        'MATCH_FINISHED' => [
+            'status' => false,
+            'message' => 'Match is finished',
+            'code' => 603,
+        ],
+
+        'MATCH_LIVE' => [
+            'status' => false,
+            'message' => 'Match is live, you can not bet',
+            'code' => 604,
+        ],
+
+        'INVALID_BET_AMOUNT' => [
+            'status' => false,
+            'message' => 'Bet amount must be lower than or equal to the balance of account',
+            'code' => 605,
+        ],
+
+        'BET_ALREADY' => [
+            'status' => false,
+            'message' => 'Bet this type already',
+            'code' => 606,
+        ],
+
+        'BAD_COMMENT' => [
+            'status' => false,
+            'message' => 'Comment must contain 1-300 character',
+            'code' => 607,
+        ],
     ]
-];
+]
+?>

@@ -74,4 +74,14 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'user';
     public $primaryKey = 'user_id';
     public $timestamps = false;
+
+    public function increaseBalance($amount) {
+        $this->balance += $amount;
+        $this->save();
+    }
+
+    public function decreaseBalance($amount) {
+        $this->balance -= $amount;
+        $this->save();
+    }
 }
