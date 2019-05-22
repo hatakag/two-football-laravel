@@ -67,7 +67,7 @@ class BetController extends Controller
                     'bet_type' => $request->get("bet_type"),
                     'bet_amount' => $request->get("bet_amount"),
                     'bet_content' => $request->get("bet_content"),
-                    'bet_time' => date('Y-m-dTh:m:s', strtotime($betTime)),
+                    'bet_time' => date('Y-m-dTH:i:s', strtotime($betTime)),
                     'bet_status' => 'PROCESSING',
                 ]
             ], Response::HTTP_OK);

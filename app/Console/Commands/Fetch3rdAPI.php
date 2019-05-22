@@ -168,7 +168,7 @@ class Fetch3rdAPI extends Command
                                 'bet_type' => $bet->bet_type,
                                 'bet_amount' => $bet->bet_amount,
                                 'bet_content' => $bet->bet_content,
-                                'bet_time' => date("Y-m-dTh:m:s", strtotime($bet->bet_time)),
+                                'bet_time' => date("Y-m-dTH:i:s", strtotime($bet->bet_time)),
                                 'bet_status' => $bet->bet_status,
                                 'bet_gain' => $bet->bet_gain,
                             ];
