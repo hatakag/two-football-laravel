@@ -9,11 +9,7 @@ class Comment extends ModelMPK
 {
     //
     protected $fillable = [
-        'match_id', 'user_id'
-    ];
-
-    protected $attributes = [
-        'time' => 'datetime',
+        'match_id', 'user_id', 'time', 'comment'
     ];
 
     protected $table = 'comment';

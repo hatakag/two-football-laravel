@@ -19,7 +19,7 @@ class BetController extends Controller
         try {
             $match = Fixture::findOrFail($match_id);
             if ($match->match_status == 'FT') {
-                return response()->json(config('constants.error_response.MATCH_FINISH'), Response::HTTP_BAD_REQUEST);
+                return response()->json(config('constants.error_response.MATCH_FINISHED'), Response::HTTP_BAD_REQUEST);
             }
             if ($match->match_status != '') {
                 return response()->json(config('constants.error_response.MATCH_LIVE'), Response::HTTP_BAD_REQUEST);
@@ -28,9 +28,9 @@ class BetController extends Controller
             $user = auth()->user();
 
             $validator = Validator::make($request->all(), [
-                'bet_type' => ['required','integer','max:1','between:1,3'],
+                'bet_type' => ['required','integer','between:1,3'],
                 'bet_amount' => ['required','numeric'],
-                'bet_content' => ['required', 'string','regex:^([0-9]{1,2}-[0-9]{1,2}|[0-9])$'],
+                'bet_content' => ['required', 'string','regex:/^([0-9]{1,2}-[0-9]{1,2}|[0-9])$/'],
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -44,7 +44,10 @@ class BetController extends Controller
                 return response()->json(config('constants.error_response.INVALID_BET_AMOUNT'), Response::HTTP_BAD_REQUEST);
             }
 
-            $betRecord = Bet::find([$user->user_id, $match_id, $request->get("bet_type")]);
+            $betRecord = Bet::where('user_id', $user->user_id)
+                ->where('match_id', $match_id)
+                ->where('bet_type', $request->get("bet_type"))
+                ->first();
             if (!is_null($betRecord)) {
                 return response()->json(config('constants.error_response.BET_ALREADY'), Response::HTTP_BAD_REQUEST);
             }
@@ -89,7 +92,7 @@ class BetController extends Controller
             $bets = Bet::where('match_id', $match_id)->get();
             return response()->json([
                 'status' => true,
-                'bets' => $bets,
+                'bets' => $bets, //TODO: change time format
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json(config('constants.error_response.MATCH_NOT_FOUND'), Response::HTTP_BAD_REQUEST);
@@ -110,7 +113,7 @@ class BetController extends Controller
             $bets = Bet::where('user_id', $user_id)->get();
             return response()->json([
                 'status' => true,
-                'bets' => $bets,
+                'bets' => $bets, //TODO: change response format
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([

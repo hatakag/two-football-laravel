@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,8 +21,8 @@ class TransactionController extends Controller
                 return response()->json(config('constants.error_response.INVALID_TOKEN'), Response::HTTP_FORBIDDEN);
 
             $validator = Validator::make($request->all(), [
-                'code' => ['required', 'string'],
-                'password' => ['required', 'string', 'max:600'],
+                'code' => ['required', 'string', 'regex:/^[a-zA-Z0-9]{3}$/'],
+                'password' => ['required', 'string', 'min:1','max:600'],
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -31,22 +32,24 @@ class TransactionController extends Controller
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            if (bcrypt($request->get('password')) != $user->password) {
+            if (!Hash::check($request->get('password'), $user->password)) {
+                //error_log('password');
                 return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
             }
             try {
                 $card = Card::findOrFail($request->get('code'));
             } catch (ModelNotFoundException $e) {
+                ///error_log('card');
                 return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
             }
             if ($card->active == false) {
+                //error_log('card_active');
                 return response()->json(config('constants.error_response.BAD_CARD_REQUEST'), Response::HTTP_BAD_REQUEST);
             }
 
-            $user->balance += $card->value;
+            $user->increaseBalance($card->value);
             $card->active = false;
             $card->save();
-            $user->save();
             return response()->json([
                 'status' => true,
                 'bill' => [

@@ -7,6 +7,7 @@ use App\Models\Fixture;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Validator;
 use Pusher\Pusher;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,7 @@ class CommentController extends Controller
     public function postComment(Request $request,$match_id) {
         try {
             $validator = Validator::make($request->all(), [
-                'comment' => ['required', 'string', 'regex:^.{1,300}$'],
+                'comment' => ['required', 'string', 'regex:/^.{1,300}$/'],
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -33,18 +34,19 @@ class CommentController extends Controller
                 'match_id' => $match_id,
                 'user_id' => auth()->user()->user_id,
                 'comment' => $commentContent,
+                'time' => Date::now(),
             ]);
             //async task
+            //pusher
             $data = [
                 'user' => [
                     'user_id' => auth()->user()->user_id,
-                    'name' => auth()->user()->user_id,
+                    'name' => auth()->user()->name,
                 ],
                 'comment' => $commentContent,
                 'match_id' => $match_id,
             ];
             $event = config("constants.pusher.COMMENT_EVENT_PREFIX").(string)$match_id;
-            //pusher
             $options = array(
                 'cluster' => 'ap1',
                 'useTLS' => true
@@ -71,7 +73,7 @@ class CommentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->messages(),
+                'message' => $e->getMessage(),
                 'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

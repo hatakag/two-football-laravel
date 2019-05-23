@@ -23,6 +23,9 @@ Auth::routes();
 //Common route
 Route::get('/home', 'HomeController@index')->name('home');
 */
-Route::get('/test_pusher', function () {
+Route::get('/test_bet_pusher', function () {
     return view('pusher');
+});
+Route::get('/test_comment_pusher', function () {
+    return view('pusher2');
 });

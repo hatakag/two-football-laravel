@@ -110,72 +110,73 @@ class Fetch3rdAPI extends Command
                         //calculate bet
                         $betList = Bet::where('match_id', $matchID)->get();
                         foreach ($betList as $bet) {
-                            print($bet->bet_type);
-                            //halftime bet
-                            if ($bet->bet_type == 1) {
-                                $predictResult = explode("-" ,$bet->bet_content);
-                                if ((int)$predictResult[0] == $matchRecord->match_hometeam_halftime_score and (int)$predictResult[1] == $matchRecord->match_awayteam_halftime_score) {
-                                    $user = User::find($bet->user_id);
-                                    $betGain = $bet->bet_amount * 2;
-                                    $user->balance += $betGain;
-                                    $user->save();
-                                    $bet->end($betGain);
-                                } else {
-                                    $bet->end(0);
+                            if ($bet->bet_status == 'PROCESSING') {
+                                print($bet."\n");
+                                //halftime bet
+                                if ($bet->bet_type == 1) {
+                                    $predictResult = explode("-", $bet->bet_content);
+                                    if ((int)$predictResult[0] == $matchRecord->match_hometeam_halftime_score and (int)$predictResult[1] == $matchRecord->match_awayteam_halftime_score) {
+                                        $user = User::find($bet->user_id);
+                                        $betGain = $bet->bet_amount * 2;
+                                        $user->balance += $betGain;
+                                        $user->save();
+                                        $bet->end($betGain);
+                                    } else {
+                                        $bet->end(0);
+                                    }
                                 }
-                            }
-                            //fulltime bet
-                            if ($bet->bet_type == 2) {
-                                $predictResult = explode("-" ,$bet->bet_content);
-                                if ((int)$predictResult[0] == $matchRecord->match_hometeam_score and (int)$predictResult[1] == $matchRecord->match_awayteam_score) {
-                                    $user = User::find($bet->user_id);
-                                    $betGain = $bet->bet_amount * 3;
-                                    $user->balance += $betGain;
-                                    $user->save();
-                                    $bet->end($betGain);
-                                } else {
-                                    $bet->end(0);
+                                //fulltime bet
+                                if ($bet->bet_type == 2) {
+                                    $predictResult = explode("-", $bet->bet_content);
+                                    if ((int)$predictResult[0] == $matchRecord->match_hometeam_score and (int)$predictResult[1] == $matchRecord->match_awayteam_score) {
+                                        $user = User::find($bet->user_id);
+                                        $betGain = $bet->bet_amount * 3;
+                                        $user->balance += $betGain;
+                                        $user->save();
+                                        $bet->end($betGain);
+                                    } else {
+                                        $bet->end(0);
+                                    }
                                 }
-                            }
-                            //yellow card bet
-                            if ($bet->bet_type == 3) {
-                                if ((int)$bet->bet_content == $matchRecord->yellow_card) {
-                                    $user = User::find($bet->user_id);
-                                    $betGain = $bet->bet_amount * 2;
-                                    $user->balance += $betGain;
-                                    $user->save();
-                                    $bet->end($betGain);
-                                } else {
-                                    $bet->end(0);
+                                //yellow card bet
+                                if ($bet->bet_type == 3) {
+                                    if ((int)$bet->bet_content == $matchRecord->yellow_card) {
+                                        $user = User::find($bet->user_id);
+                                        $betGain = $bet->bet_amount * 2;
+                                        $user->balance += $betGain;
+                                        $user->save();
+                                        $bet->end($betGain);
+                                    } else {
+                                        $bet->end(0);
+                                    }
                                 }
-                            }
-                            //pusher
-                            $options = array(
-                                'cluster' => 'ap1',
-                                'useTLS' => true
-                            );
+                                //pusher
+                                $options = array(
+                                    'cluster' => 'ap1',
+                                    'useTLS' => true
+                                );
 
-                            $pusher = new Pusher(
-                                env('PUSHER_APP_KEY'),
-                                env('PUSHER_APP_SECRET'),
-                                env('PUSHER_APP_ID'),
-                                $options
-                            );
+                                $pusher = new Pusher(
+                                    env('PUSHER_APP_KEY'),
+                                    env('PUSHER_APP_SECRET'),
+                                    env('PUSHER_APP_ID'),
+                                    $options
+                                );
 
-                            $event = config("constants.pusher.BET_EVENT_PREFIX").(string)$matchID."_".(string)$bet->user_id;
-                            $data = [
-                                'match' => $matchRecord,
-                                'bet_type' => $bet->bet_type,
-                                'bet_amount' => $bet->bet_amount,
-                                'bet_content' => $bet->bet_content,
-                                'bet_time' => date("Y-m-dTH:i:s", strtotime($bet->bet_time)),
-                                'bet_status' => $bet->bet_status,
-                                'bet_gain' => $bet->bet_gain,
-                            ];
-                            $pusher->trigger(config("constants.pusher.BET_CHANNEL"), $event, $data);
+                                $event = config("constants.pusher.BET_EVENT_PREFIX") . (string)$matchID . "_" . (string)$bet->user_id;
+                                $data = [
+                                    'match' => $matchRecord,
+                                    'bet_type' => $bet->bet_type,
+                                    'bet_amount' => $bet->bet_amount,
+                                    'bet_content' => $bet->bet_content,
+                                    'bet_time' => date("Y-m-dTH:i:s", strtotime($bet->bet_time)),
+                                    'bet_status' => $bet->bet_status,
+                                    'bet_gain' => $bet->bet_gain,
+                                ];
+                                $pusher->trigger(config("constants.pusher.BET_CHANNEL"), $event, $data);
+                            }
                         }
                     }
-
                 } catch (ModelNotFoundException $e) {
                     //insert match
                     $matchRecord = new Fixture();
@@ -202,7 +203,7 @@ class Fetch3rdAPI extends Command
         $ACTION = 'get_events';
         $API_KEY = '6b15223e25e9784070b71f3a43b0ae08870adb4b6a3e8453080d2b68c6d15bcb';
 
-        $fromDate = date('Y-m-d', strtotime("-8 days")); //string
+        $fromDate = date('Y-m-d', strtotime("-30 days")); //string
         $toDate = date('Y-m-d', strtotime("+8 days"));
         $param = [
             'action' => $ACTION,
