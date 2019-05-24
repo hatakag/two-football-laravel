@@ -19,11 +19,7 @@ class AdminRoleCheck
         if(auth()->check() && auth()->user()->role == config('constants.role.admin')){
             return $next($request);
         }else{
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid role',
-                'code' => 101,
-            ], Response::HTTP_FORBIDDEN);
+            return response()->json(config("constants.error_response.FORBIDDEN_RESPONSE"), Response::HTTP_FORBIDDEN);
         }
     }
 }

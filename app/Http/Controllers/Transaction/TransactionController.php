@@ -21,8 +21,8 @@ class TransactionController extends Controller
                 return response()->json(config('constants.error_response.INVALID_TOKEN'), Response::HTTP_FORBIDDEN);
 
             $validator = Validator::make($request->all(), [
-                'code' => ['required', 'string', 'regex:/^[a-zA-Z0-9]{3}$/'],
-                'password' => ['required', 'string', 'min:1','max:600'],
+                'code' => ['required', 'string', 'regex:/^[a-zA-Z0-9]{16}$/'],
+                'password' => ['required', 'string', 'min:6','max:600'],
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -56,7 +56,7 @@ class TransactionController extends Controller
                     'card_amount' => $card->value,
                     'previous_balance' => $user->balance-$card->value,
                     'balance' => $user->balance,
-                    'deposit_time' => date('Y-m-dTH:i:s'),
+                    'deposit_time' => date('Y-m-d\TH:i:s'),
                 ],
             ], Response::HTTP_OK);
 
