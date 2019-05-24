@@ -14,8 +14,8 @@ class LoginController extends Controller
     public function login(Request $request) {
         $credentials = $request->only('username', 'password');
         $rules = [
-            'username' => 'required|string|max:100',
-            'password' => 'required|string|max:600',
+            'username' => ['required', 'string', 'max:100'],
+            'password' => ['required', 'string', 'min:6', 'max:600'],
         ];
         $validator = Validator::make($credentials, $rules);
         if($validator->fails()) {

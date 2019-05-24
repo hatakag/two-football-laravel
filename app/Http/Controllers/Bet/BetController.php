@@ -29,7 +29,7 @@ class BetController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'bet_type' => ['required','integer','between:1,3'],
-                'bet_amount' => ['required','numeric'],
+                'bet_amount' => ['required','numeric', 'min:1'],
                 'bet_content' => ['required', 'string','regex:/^([0-9]{1,2}-[0-9]{1,2}|[0-9])$/'],
             ]);
             if ($validator->fails()) {
@@ -70,7 +70,7 @@ class BetController extends Controller
                     'bet_type' => $request->get("bet_type"),
                     'bet_amount' => $request->get("bet_amount"),
                     'bet_content' => $request->get("bet_content"),
-                    'bet_time' => date('Y-m-dTH:i:s', strtotime($betTime)),
+                    'bet_time' => date('Y-m-d\TH:i:s', strtotime($betTime)),
                     'bet_status' => 'PROCESSING',
                 ]
             ], Response::HTTP_OK);
@@ -90,9 +90,12 @@ class BetController extends Controller
         try {
             $match = Fixture::findOrFail($match_id);
             $bets = Bet::where('match_id', $match_id)->get();
+            foreach ($bets as $bet) {
+                $bet->bet_time = date('Y-m-d\TH:i:s', strtotime($bet->bet_time));
+            }
             return response()->json([
                 'status' => true,
-                'bets' => $bets, //TODO: change time format
+                'bets' => $bets,
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json(config('constants.error_response.MATCH_NOT_FOUND'), Response::HTTP_BAD_REQUEST);
@@ -111,9 +114,16 @@ class BetController extends Controller
             if ($user_id != auth()->user()->user_id)
                 return response()->json(config('constants.error_response.INVALID_TOKEN'), Response::HTTP_FORBIDDEN);
             $bets = Bet::where('user_id', $user_id)->get();
+            $betsRes = array();
+            foreach ($bets as $bet) {
+                $bet['bet_time'] = date('Y-m-d\TH:i:s', strtotime($bet['bet_time']));
+                $bet['match'] = Fixture::find($bet['match_id']);
+                unset($bet['match_id']);
+                array_push($betsRes, $bet);
+            }
             return response()->json([
                 'status' => true,
-                'bets' => $bets, //TODO: change response format
+                'bets' => $betsRes,
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Comment;
 
 use App\Models\Comment;
 use App\Models\Fixture;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -64,7 +65,7 @@ class CommentController extends Controller
                 'data' => [
                     'match_id' => $match_id,
                     'user_id' => auth()->user()->user_id,
-                    'time' => date('Y-m-dTH:i:s', strtotime($comment->time)),
+                    'time' => date('Y-m-d\TH:i:s', strtotime($comment->time)),
                     'comment' => $commentContent,
                 ]
             ], Response::HTTP_OK);
@@ -85,17 +86,28 @@ class CommentController extends Controller
             $number = $request->get("number");
             if (is_null($number))
                 $number = 5;
-            $comments = Comment::where('match_id', $match_id)->take($number)->get();
+            $comments = Comment::where('match_id', $match_id)->take($number)->orderBy('time','DESC')->get();
+            $commentsRes = array();
+            foreach ($comments as $comment) {
+                $comment['time'] = date('Y-m-d\TH:i:s', strtotime($comment['time']));
+                $user = User::find($comment['user_id']);
+                $commentUser['name'] = $user->name;
+                $commentUser['user_id'] = $user->user_id;
+                $comment['user'] = $commentUser;
+                unset($comment['user_id']);
+                unset($comment['match_id']);
+                array_push($commentsRes, $comment);
+            }
             return response()->json([
                'status' => true,
-               'data' => $comments,
+               'data' => $commentsRes,
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json(config('constants.error_response.MATCH_NOT_FOUND'), Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->messages(),
+                'message' => $e->getMessage(),
                 'code' => 100,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

@@ -57,26 +57,28 @@ class Fetch3rdAPI extends Command
             foreach ($matchList as $match) {
                 $matchID = $match->match_id;
                 $leagueID = $match->league_id;
-                $hometeamHalftimeScore = 0;
-                $awayteamHalftimeScore = 0;
-                $hometeamScore = 0;
-                $awayteamScore = 0;
-                $yellowCard = 0;
-                if ($match->match_status != '') {
-                    $hometeamHalftimeScore = $match->match_hometeam_halftime_score;
-                    $awayteamHalftimeScore = $match->match_awayteam_halftime_score;
-
+                if ($match->match_status == '') {
+                    $hometeamHalftimeScore = 0;
+                    $awayteamHalftimeScore = 0;
+                    $hometeamScore = 0;
+                    $awayteamScore = 0;
+                    $yellowCard = 0;
+                }
+                else {
+                    if ($match->match_hometeam_halftime_score != '')
+                        $hometeamHalftimeScore = (int)$match->match_hometeam_halftime_score;
+                    if ($match->match_awayteam_halftime_score != '')
+                        $awayteamHalftimeScore = (int)$match->match_awayteam_halftime_score;
                     if ($match->match_hometeam_score != '')
-                        $hometeamScore = $match->match_hometeam_score;
-
+                        $hometeamScore = (int)$match->match_hometeam_score;
                     if ($match->match_awayteam_score != '')
-                        $awayteamScore = $match->match_awayteam_score;
+                        $awayteamScore = (int)$match->match_awayteam_score;
 
                     $statistics = $match->statistics;
                     $fullTime = false;
                     foreach ($statistics as $statistic) {
                         if ($statistic->type == 'yellow cards') {
-                            $yellowCard = $statistic->home + $statistic->away;
+                            $yellowCard = (int)$statistic->home + (int)$statistic->away;
                             $fullTime = true;
                             break;
                         }
@@ -203,7 +205,7 @@ class Fetch3rdAPI extends Command
         $ACTION = 'get_events';
         $API_KEY = '6b15223e25e9784070b71f3a43b0ae08870adb4b6a3e8453080d2b68c6d15bcb';
 
-        $fromDate = date('Y-m-d', strtotime("-30 days")); //string
+        $fromDate = date('Y-m-d', strtotime("-8 days")); //string
         $toDate = date('Y-m-d', strtotime("+8 days"));
         $param = [
             'action' => $ACTION,

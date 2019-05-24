@@ -39,9 +39,9 @@ class UserController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'username' => ['required','string','max:100',Rule::unique('user')->ignore($user)],
-                'name' => ['required','string','max:60'],
+                'name' => ['required','string','min:2','max:60'],
                 'picture' => [],
-                'phone' => ['required','string','max:11',Rule::unique('user')->ignore($user)],
+                'phone' => ['required','string','max:10','regex:/^0+([0-9]{9})$/',Rule::unique('user')->ignore($user)],
                 'email' => ['required','string','email','max:100',Rule::unique('user')->ignore($user)],
             ]);
             if ($validator->fails()) {
@@ -79,9 +79,17 @@ class UserController extends Controller
             $users = User::orderBy('balance', 'desc')
                 ->take(10)
                 ->get();
+            foreach ($users as $user) {
+                unset($user['user_id']);
+                unset($user['password']);
+                unset($user['phone']);
+                unset($user['email']);
+                unset($user['picture']);
+                unset($user['role']);
+            }
             return response()->json([
                 'status' => true,
-                'users' => $users->toArray()
+                'users' => $users
             ], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json([
