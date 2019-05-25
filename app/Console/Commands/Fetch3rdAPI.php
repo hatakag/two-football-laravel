@@ -55,6 +55,7 @@ class Fetch3rdAPI extends Command
                 continue;
             }
             foreach ($matchList as $match) {
+                print ($match->match_id);
                 $matchID = $match->match_id;
                 $leagueID = $match->league_id;
                 if ($match->match_status == '') {
@@ -205,8 +206,12 @@ class Fetch3rdAPI extends Command
         $ACTION = 'get_events';
         $API_KEY = '6b15223e25e9784070b71f3a43b0ae08870adb4b6a3e8453080d2b68c6d15bcb';
 
-        $fromDate = date('Y-m-d', strtotime("-8 days")); //string
-        $toDate = date('Y-m-d', strtotime("+8 days"));
+//        $fromDate = date('Y-m-d', strtotime("-8 days")); //string
+//        $toDate = date('Y-m-d', strtotime("+8 days"));
+
+        $fromDate = '2019-05-10';
+        $toDate = '2019-05-17';
+
         $param = [
             'action' => $ACTION,
             'from' => $fromDate,
