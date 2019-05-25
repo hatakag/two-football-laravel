@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UsersTableSeeder::class);
-        DB::table('user')->insert([
+        DB::table('user')->insert([[
             'user_id' => 1,
             'username' => 'thanh',
             'password' => bcrypt('secret'),
@@ -23,7 +23,17 @@ class DatabaseSeeder extends Seeder
             'picture' => 'None',
             'phone' => '0123456789',
             'email' => 'thanh'.'@gmail.com',
-        ]);
+        ],[
+            'user_id' => 2,
+            'username' => 'than',
+            'password' => bcrypt('123456'),
+            'role' => config('constants.role.user'),
+            'balance' => 50000,
+            'name' => 'than',
+            'picture' => 'None',
+            'phone' => '0123456781',
+            'email' => 'than'.'@gmail.com',
+        ]]);
 
         DB::table('card')->insert([[
             'code' => 1234123412341234,
@@ -78,7 +88,7 @@ class DatabaseSeeder extends Seeder
         ],
         ]);
 
-        DB::table('bet')->insert([
+        DB::table('bet')->insert([[
             'user_id' => 1,
             'match_id' => 410600,
             'bet_type' => 1,
@@ -87,7 +97,16 @@ class DatabaseSeeder extends Seeder
             'bet_time' => \Illuminate\Support\Facades\Date::now(),
             'bet_status' => 'PROCESSING',
             'bet_gain' => 0,
-        ]);
+        ],[
+            'user_id' => 2,
+            'match_id' => 410600,
+            'bet_type' => 2,
+            'bet_amount' => 1000,
+            'bet_content' => '0-1',
+            'bet_time' => \Illuminate\Support\Facades\Date::now(),
+            'bet_status' => 'PROCESSING',
+            'bet_gain' => 0,
+        ]]);
 
         DB::table('comment')->insert([
             'match_id' => 410600,
