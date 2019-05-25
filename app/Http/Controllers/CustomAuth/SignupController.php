@@ -14,8 +14,9 @@ class SignupController extends Controller
     //
     public function signup(Request $request)
     {
+
         try {
-            $validator = Validator::make($request->all(), [
+            $validator = Validator::make($request->json()->all(), [
                 'username' => ['required', 'string', 'max:100', Rule::unique('user')],
                 'password' => ['required', 'string', 'min:6', 'max:600'],
                 'name' => ['required', 'string', 'min:2', 'max:60'],
