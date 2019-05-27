@@ -36,11 +36,11 @@ class DatabaseSeeder extends Seeder
         ]]);
 
         DB::table('card')->insert([[
-            'code' => 1234123412341234,
+            'code' => '1234123412341234',
             'value' => 100000,
             'active' => true,
         ],[
-            'code' => 5678567856785678,
+            'code' => '5678567856785678',
             'value' => 200000,
             'active' => true,
         ]]);
