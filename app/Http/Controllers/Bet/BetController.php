@@ -89,7 +89,7 @@ class BetController extends Controller
     {
         try {
             $match = Fixture::findOrFail($match_id);
-            $bets = Bet::where('match_id', $match_id)->get();
+            $bets = Bet::where('match_id', $match_id)->where('user_id', auth()->user()->user_id)->get();
             foreach ($bets as $bet) {
                 $bet->bet_time = date('Y-m-d\TH:i:s', strtotime($bet->bet_time));
             }
