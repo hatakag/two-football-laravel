@@ -166,7 +166,7 @@ class Fetch3rdAPI extends Command
                                     $options
                                 );
 
-                                $event = config("constants.pusher.BET_EVENT_PREFIX") . (string)$matchID . "_" . (string)$bet->user_id;
+                                $event = config("constants.pusher.BET_EVENT_PREFIX") . (string)$matchID . "_" . (string)$bet->bet_type . "_" . (string)$bet->user_id;
                                 $data = [
                                     'match' => $matchRecord,
                                     'bet_type' => $bet->bet_type,
